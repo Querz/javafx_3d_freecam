@@ -9,13 +9,12 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.transform.Rotate;
 import javafx.scene.transform.Translate;
-
 import java.awt.*;
 
 public class FreeCamera extends PerspectiveCamera {
 	private SubScene scene3D;
 	private Rotate cYaw = new Rotate(0, Rotate.Y_AXIS);
-	private Rotate cPit = new Rotate(-20, Rotate.X_AXIS);
+	private Rotate cPit = new Rotate(0, Rotate.X_AXIS);
 	private Translate cTrans = new Translate(0, 0, 0);
 	private int centerX, centerY;
 	private static final double MOUSE_SPEED = 0.1;
@@ -32,33 +31,49 @@ public class FreeCamera extends PerspectiveCamera {
 		scene3DInput.registerKeyAction(KeyCode.W, s -> {
 			double dx = Math.sin(Math.toRadians(cYaw.getAngle()));
 			double dz = Math.cos(Math.toRadians(cYaw.getAngle()));
-			cTrans.setX(cTrans.getX() + dx);
-			cTrans.setZ(cTrans.getZ() + dz);
+			setLocation(cTrans.getX() + dx, cTrans.getY(), cTrans.getZ() + dz);
 		});
 		scene3DInput.registerKeyAction(KeyCode.S, s -> {
 			double dx = Math.sin(Math.toRadians(cYaw.getAngle()));
 			double dz = Math.cos(Math.toRadians(cYaw.getAngle()));
-			cTrans.setX(cTrans.getX() - dx);
-			cTrans.setZ(cTrans.getZ() - dz);
+			setLocation(cTrans.getX() - dx, cTrans.getY(), cTrans.getZ() - dz);
 		});
 		scene3DInput.registerKeyAction(KeyCode.A, s -> {
 			double dx = Math.sin(Math.toRadians(cYaw.getAngle() + 90));
 			double dz = Math.cos(Math.toRadians(cYaw.getAngle() + 90));
-			cTrans.setX(cTrans.getX() - dx);
-			cTrans.setZ(cTrans.getZ() - dz);
+			setLocation(cTrans.getX() - dx, cTrans.getY(), cTrans.getZ() - dz);
 		});
 		scene3DInput.registerKeyAction(KeyCode.D, s -> {
 			double dx = Math.sin(Math.toRadians(cYaw.getAngle() + 90));
 			double dz = Math.cos(Math.toRadians(cYaw.getAngle() + 90));
-			cTrans.setX(cTrans.getX() + dx);
-			cTrans.setZ(cTrans.getZ() + dz);
+			setLocation(cTrans.getX() + dx, cTrans.getY(), cTrans.getZ() + dz);
 		});
 		scene3DInput.registerKeyAction(KeyCode.ESCAPE, s -> scene3D.setCursor(Cursor.DEFAULT));
-		scene3DInput.registerKeyAction(KeyCode.SPACE, s -> cTrans.setY(cTrans.getY() - 1));
-		scene3DInput.registerKeyAction(KeyCode.SHIFT, s -> cTrans.setY(cTrans.getY() + 1));
+		scene3DInput.registerKeyAction(KeyCode.SPACE, s -> setLocation(cTrans.getX(), cTrans.getY() - 1, cTrans.getZ()));
+		scene3DInput.registerKeyAction(KeyCode.SHIFT, s -> setLocation(cTrans.getX(), cTrans.getY() + 1, cTrans.getZ()));
 		scene3D.setOnMouseMoved(this::onMouseMoved);
 		scene3D.setOnMouseExited(this::onMouseExited);
 		scene3D.setOnMousePressed(this::onMousePressed);
+	}
+
+	public void setLocation(double x, double y, double z) {
+		cTrans.setX(x);
+		cTrans.setY(y);
+		cTrans.setZ(z);
+	}
+
+	public void setYaw(double angle) {
+		cYaw.setAngle(normalizeAngle(angle));
+	}
+
+	public void setPitch(double angle) {
+		cPit.setAngle(normalizeAngle(angle));
+	}
+
+	public void teleport(double x, double y, double z, double pitch, double yaw) {
+		setLocation(x, y, z);
+		setPitch(pitch);
+		setYaw(yaw);
 	}
 
 	private void onMousePressed(MouseEvent event) {
@@ -72,8 +87,8 @@ public class FreeCamera extends PerspectiveCamera {
 			double dx = (event.getSceneX() - centerX) * MOUSE_SPEED;
 			double dy = (event.getSceneY() - centerY) * MOUSE_SPEED;
 
-			cYaw.setAngle(normalize(cYaw.getAngle() + dx));
-			cPit.setAngle(normalize(cPit.getAngle() - dy));
+			setYaw(cYaw.getAngle() + dx);
+			setPitch(cPit.getAngle() - dy);
 
 			if (event.getSceneX() != centerX || event.getSceneY() != centerY) {
 				resetCursor((int) b.getMinX() + centerX, (int) b.getMinY() + centerY);
@@ -96,7 +111,7 @@ public class FreeCamera extends PerspectiveCamera {
 		});
 	}
 
-	private double normalize(double angle) {
+	private double normalizeAngle(double angle) {
 		return angle > 0 ? angle % 360 : (360 + angle % 360) % 360;
 	}
 }

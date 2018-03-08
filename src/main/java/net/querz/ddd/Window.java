@@ -40,7 +40,7 @@ public class Window extends Application {
 
 		FreeCamera camera = new FreeCamera(scene3D, true);
 		camera.setFarClip(1000);
-		camera.getTransforms().addAll(new Translate(0, -10, -30));
+		camera.teleport(0, -15, -30, -25, 0);
 		scene3D.setCamera(camera);
 
 		primaryStage.setOnCloseRequest(e -> System.exit(0));
