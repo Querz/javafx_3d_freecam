@@ -2,6 +2,7 @@ package net.querz.ddd;
 
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.TriangleMesh;
+import javafx.scene.transform.Rotate;
 
 public class Plane extends MeshView {
 
@@ -23,6 +24,7 @@ public class Plane extends MeshView {
 				0, 0, 1, 0, 2, 0,
 				0, 0, 2, 0, 3, 0
 		);
+		getTransforms().add(new Rotate(180));
 		setMesh(mesh);
 	}
 }

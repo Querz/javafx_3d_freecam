@@ -9,14 +9,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
-public class Input {
+public class ActiveInput {
 	private static ExecutorService threadpool;
 	private SubScene scene;
 	private Map<KeyCode, KeyCode> pressedKeys = new ConcurrentHashMap<>();
 	private Map<KeyCode, Consumer<SubScene>> keyActions = new ConcurrentHashMap<>();
 	private boolean running = true;
 
-	public Input(SubScene subScene) {
+	public ActiveInput(SubScene subScene) {
 		this.scene = subScene;
 		this.scene.getScene().setOnKeyPressed(this::onKeyPressed);
 		this.scene.getScene().setOnKeyReleased(this::onKeyReleased);
@@ -45,6 +45,10 @@ public class Input {
 
 	public void registerKeyAction(KeyCode k, Consumer<SubScene> r) {
 		keyActions.put(k, r);
+	}
+
+	public void unregisterKeyAction(KeyCode k) {
+		keyActions.remove(k);
 	}
 
 	private void onKeyPressed(KeyEvent event) {
